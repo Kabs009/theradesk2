@@ -108,14 +108,27 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 text-gray-900">
-      <div className="max-w-md w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4 text-gray-900 relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-indigo-200/30 rounded-full blur-3xl animate-float"></div>
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-200/30 rounded-full blur-3xl animate-float" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-pink-200/20 rounded-full blur-3xl animate-pulse-subtle"></div>
+      </div>
+
+      <div className="max-w-md w-full animate-scale-in relative z-10">
         <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-indigo-600 rounded-[2rem] text-white shadow-2xl shadow-indigo-100 mb-6">
-            <i className="fas fa-brain text-4xl"></i>
+          <div className="inline-flex items-center justify-center w-24 h-24 gradient-primary rounded-[2rem] text-white shadow-beautiful shadow-indigo-200 mb-6 animate-float">
+            <i className="fas fa-brain text-5xl"></i>
           </div>
-          <h1 className="text-3xl font-black text-gray-900 tracking-tight">Theradesk OS</h1>
-          <p className="text-gray-500 mt-2 font-medium">Secure clinical practice management.</p>
+          <h1 className="text-4xl font-black text-gray-900 tracking-tight mb-2">
+            <span className="text-gradient">Theradesk OS</span>
+          </h1>
+          <p className="text-gray-600 text-lg font-semibold">Secure clinical practice management</p>
+          <div className="flex items-center justify-center gap-2 mt-3">
+            <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+            <p className="text-xs font-bold uppercase tracking-widest text-slate-400">HIPAA Compliant</p>
+          </div>
         </div>
 
         <div className="bg-white p-8 rounded-[2.5rem] shadow-2xl shadow-gray-200/50 border border-gray-100">
