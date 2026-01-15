@@ -94,10 +94,17 @@ const App: React.FC = () => {
   };
 
   if (loading) return (
-    <div className="h-screen flex items-center justify-center bg-slate-50">
-      <div className="text-center">
-        <div className="w-12 h-12 bg-indigo-600 rounded-2xl mx-auto mb-4 animate-pulse"></div>
-        <p className="text-xs font-black uppercase tracking-widest text-slate-400">Loading OS...</p>
+    <div className="h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+      <div className="text-center animate-float">
+        <div className="w-16 h-16 gradient-primary rounded-3xl mx-auto mb-6 animate-pulse-subtle flex items-center justify-center shadow-beautiful">
+          <i className="fas fa-brain text-white text-xl"></i>
+        </div>
+        <p className="text-sm font-black uppercase tracking-widest text-slate-600">Loading Theradesk OS...</p>
+        <div className="mt-4 flex justify-center space-x-1">
+          <div className="w-2 h-2 bg-indigo-400 rounded-full animate-pulse"></div>
+          <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+          <div className="w-2 h-2 bg-pink-400 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+        </div>
       </div>
     </div>
   );
@@ -159,7 +166,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen bg-slate-50 overflow-hidden text-slate-900">
+    <div className="flex h-screen overflow-hidden text-slate-900" style={{ background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%)' }}>
       <Sidebar view={view} setView={setView} user={user} />
       <main className="flex-1 overflow-y-auto p-4 md:p-8">
         <div className="max-w-6xl mx-auto animate-clinical-in">

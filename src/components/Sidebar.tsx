@@ -13,25 +13,29 @@ const Sidebar: React.FC<Props> = ({ view, setView, user }) => {
   ];
 
   return (
-    <aside className="w-64 bg-white border-r border-slate-200 hidden md:flex flex-col h-full">
+    <aside className="w-64 gradient-card border-r border-slate-200/50 hidden md:flex flex-col h-full shadow-beautiful backdrop-blur-sm">
       <div className="p-8 flex items-center gap-3">
-        <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white shadow-lg shadow-indigo-100">
-          <i className="fas fa-brain text-sm"></i>
+        <div className="w-10 h-10 gradient-primary rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-200 animate-float">
+          <i className="fas fa-brain text-base"></i>
         </div>
         <div>
           <h1 className="font-black text-slate-900 tracking-tight text-sm">Theradesk OS</h1>
-          <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Clinical Zen</p>
+          <p className="text-[9px] text-slate-500 font-bold uppercase tracking-widest">Clinical Zen</p>
         </div>
       </div>
 
       <nav className="flex-1 px-4 space-y-2 mt-4">
         {items.map(item => (
-          <button 
-            key={item.id} 
+          <button
+            key={item.id}
             onClick={() => setView(item.id)}
-            className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all ${view === item.id ? 'bg-indigo-50 text-indigo-700' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'}`}
+            className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all duration-300 shadow-hover ${
+              view === item.id
+                ? 'gradient-primary text-white shadow-lg transform scale-105'
+                : 'text-slate-500 hover:text-slate-700 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 hover:shadow-md hover:transform hover:scale-102'
+            }`}
           >
-            <i className={`fas ${item.icon} w-5`}></i>
+            <i className={`fas ${item.icon} w-5 transition-transform duration-300 ${view === item.id ? 'scale-110' : 'group-hover:scale-105'}`}></i>
             {item.label}
           </button>
         ))}
