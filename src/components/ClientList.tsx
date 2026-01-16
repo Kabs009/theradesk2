@@ -1,31 +1,12 @@
 import React, { useState } from 'react';
 import { Client, ClientStatus } from '../types';
+import NewClientModal from './NewClientModal';
 
 interface Props { clients: Client[]; onSelectClient: (id: string) => void; onAddClient: (c: Client) => void; practitionerId: string; }
 
 const ClientList: React.FC<Props> = ({ clients, onSelectClient, onAddClient, practitionerId }) => {
   const [search, setSearch] = useState('');
-
-  const handleAdd = () => {
-    const name = prompt("Client Name:");
-    if (!name) return;
-    const email = prompt("Client Email:");
-    
-    const newClient: Client = {
-      id: `c-${Date.now()}`,
-      practitionerId,
-      name,
-      email: email || '',
-      phone: '',
-      dob: '',
-      status: ClientStatus.ACTIVE,
-      presentingConcern: '',
-      emergencyContact: '',
-      consentSigned: false,
-      createdAt: Date.now()
-    };
-    onAddClient(newClient);
-  };
+  const [showAddModal, setShowAddModal] = useState(false);
 
   const filtered = clients.filter(c => c.name.toLowerCase().includes(search.toLowerCase()));
 
@@ -56,7 +37,7 @@ const ClientList: React.FC<Props> = ({ clients, onSelectClient, onAddClient, pra
           </div>
         </div>
         <button 
-          onClick={handleAdd} 
+          onClick={() => setShowAddModal(true)} 
           className="btn-primary flex items-center gap-2 whitespace-nowrap group"
         >
           <i className="fas fa-plus group-hover:rotate-90 transition-transform duration-300"></i> 
@@ -141,9 +122,9 @@ const ClientList: React.FC<Props> = ({ clients, onSelectClient, onAddClient, pra
                     </p>
                     {c.phone && (
                       <p className="text-sm text-slate-500 flex items-center gap-2">
-                        <i className="fas fa-phone text-xs text-slate-400"></i>
-                        {c.phone}
-                      </p>
+                      <i className="fas fa-phone text-xs text-slate-400"></i>
+                      {c.phone}
+                    </p>
                     )}
                   </div>
 
@@ -152,7 +133,7 @@ const ClientList: React.FC<Props> = ({ clients, onSelectClient, onAddClient, pra
                     <div className="flex items-center gap-2">
                       <div className={`w-2 h-2 rounded-full ${c.consentSigned ? 'bg-emerald-500' : 'bg-amber-500'} animate-pulse-subtle`}></div>
                       <span className="text-xs font-bold text-slate-600">
-                        Consent {c.consentSigned ? 'Signed' : 'Pending'}
+                      Consent {c.consentSigned ? 'Signed' : 'Pending'}
                       </span>
                     </div>
                     <i className="fas fa-arrow-right text-slate-300 group-hover:text-indigo-600 group-hover:translate-x-1 transition-all duration-300"></i>
@@ -162,8 +143,8 @@ const ClientList: React.FC<Props> = ({ clients, onSelectClient, onAddClient, pra
                   {c.presentingConcern && (
                     <div className="mt-3 pt-3 border-t border-slate-50">
                       <p className="text-xs text-slate-400 line-clamp-2">
-                        <i className="fas fa-clipboard-list mr-1"></i>
-                        {c.presentingConcern}
+                      <i className="fas fa-clipboard-list mr-1"></i>
+                      {c.presentingConcern}
                       </p>
                     </div>
                   )}
@@ -175,26 +156,37 @@ const ClientList: React.FC<Props> = ({ clients, onSelectClient, onAddClient, pra
       ) : (
         <div className="card-beautiful p-16 text-center animate-scale-in">
           <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-indigo-50 to-purple-50 flex items-center justify-center mx-auto mb-6">
-            <i className="fas fa-folder-open text-4xl text-indigo-300"></i>
+          <i className="fas fa-folder-open text-4xl text-indigo-300"></i>
           </div>
           <h3 className="text-xl font-black text-slate-900 mb-2">
-            {search ? 'No Matching Files' : 'No Client Files Yet'}
+          {search ? 'No Matching Files' : 'No Client Files Yet'}
           </h3>
           <p className="text-slate-500 mb-6">
-            {search 
-              ? 'Try adjusting your search criteria'
-              : 'Start building your practice by adding your first client'}
+          {search 
+            ? 'Try adjusting your search criteria'
+            : 'Start building your practice by adding your first client'}
           </p>
           {!search && (
-            <button 
-              onClick={handleAdd}
-              className="btn-primary inline-flex items-center gap-2"
-            >
-              <i className="fas fa-plus"></i>
-              Add First Client
-            </button>
+          <button 
+            onClick={() => setShowAddModal(true)}
+            className="btn-primary inline-flex items-center gap-2"
+          >
+            <i className="fas fa-plus"></i>
+            Add First Client
+          </button>
           )}
         </div>
+      )}
+
+      {showAddModal && (
+        <NewClientModal 
+          onClose={() => setShowAddModal(false)}
+          onSubmit={(client) => {
+            onAddClient(client);
+            setShowAddModal(false);
+          }}
+          user={{ id: practitionerId } as any} // Minimal prop pass
+        />
       )}
     </div>
   );

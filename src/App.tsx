@@ -10,8 +10,10 @@ import ClientDetail from './components/ClientDetail';
 import SettingsView from './components/SettingsView';
 import Login from './components/Login';
 import UpgradeModal from './components/UpgradeModal';
+import { ToastProvider } from './contexts/ToastContext';
+import ToastContainer from './components/ToastContainer';
 
-const App: React.FC = () => {
+const AppContent: React.FC = () => {
   const [user, setUser] = useState<Practitioner | null>(null);
   const [clients, setClients] = useState<Client[]>([]);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -127,40 +129,40 @@ const App: React.FC = () => {
       const c = clients.find(x => x.id === selectedClientId);
       if (!c) { setSelectedClientId(null); return null; }
       return (
-        <ClientDetail 
-          client={c} 
-          appointments={appointments.filter(a => a.clientId === c.id)} 
-          notes={notes.filter(n => n.clientId === c.id)} 
-          onBack={() => setSelectedClientId(null)} 
-          onUpdateClient={updateClient} 
-          onUpdateNote={updateNote} 
-          onUpdateAppt={updateAppt} 
+        <ClientDetail
+          client={c}
+          appointments={appointments.filter(a => a.clientId === c.id)}
+          notes={notes.filter(n => n.clientId === c.id)}
+          onBack={() => setSelectedClientId(null)}
+          onUpdateClient={updateClient}
+          onUpdateNote={updateNote}
+          onUpdateAppt={updateAppt}
         />
       );
     }
-    switch(view) {
-      case 'dashboard': 
+    switch (view) {
+      case 'dashboard':
         return <Dashboard user={user} clients={clients} appointments={appointments} notes={notes} onNavigateToClient={(id) => { setSelectedClientId(id); setView('clients'); }} />;
-      case 'clients': 
+      case 'clients':
         return <ClientList clients={clients} onSelectClient={(id) => { setSelectedClientId(id); setView('clients'); }} onAddClient={updateClient} practitionerId={user.id} />;
-      case 'schedule': 
+      case 'schedule':
         return (
-          <Schedule 
-            appointments={appointments} 
-            clients={clients} 
-            user={user} 
+          <Schedule
+            appointments={appointments}
+            clients={clients}
+            user={user}
             onUpdateData={(newData) => {
               if (newData.appointments) {
                 // Determine the new appointment(s)
                 const latest = newData.appointments[newData.appointments.length - 1];
                 if (latest) updateAppt(latest);
               }
-            }} 
+            }}
           />
         );
-      case 'settings': 
+      case 'settings':
         return <SettingsView user={user} onUpdateUser={setUser} onTriggerUpgrade={() => setShowUpgrade(true)} />;
-      default: 
+      default:
         return null;
     }
   };
@@ -173,8 +175,17 @@ const App: React.FC = () => {
           {renderView()}
         </div>
       </main>
-      {showUpgrade && <UpgradeModal user={user} onClose={() => setShowUpgrade(false)} onUpgrade={() => { setUser({...user, plan: UserPlan.PAID}); setShowUpgrade(false); }} />}
+      {showUpgrade && <UpgradeModal user={user} onClose={() => setShowUpgrade(false)} onUpgrade={() => { setUser({ ...user, plan: UserPlan.PAID }); setShowUpgrade(false); }} />}
     </div>
+  );
+};
+
+const App: React.FC = () => {
+  return (
+    <ToastProvider>
+      <AppContent />
+      <ToastContainer />
+    </ToastProvider>
   );
 };
 

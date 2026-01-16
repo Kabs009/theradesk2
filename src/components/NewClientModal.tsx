@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Client, ClientStatus, Practitioner } from '../types';
+import { useToast } from '../contexts/ToastContext';
 
 interface NewClientModalProps {
   onClose: () => void;
@@ -8,6 +9,7 @@ interface NewClientModalProps {
 }
 
 const NewClientModal: React.FC<NewClientModalProps> = ({ onClose, onSubmit, user }) => {
+  const { addToast } = useToast();
   const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -23,9 +25,9 @@ const NewClientModal: React.FC<NewClientModalProps> = ({ onClose, onSubmit, user
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (submitting) return;
-    
+
     if (!formData.name || !formData.email) {
-      alert("Name and Email are required.");
+      addToast("Name and Email are required.", 'error');
       return;
     }
 
@@ -39,6 +41,7 @@ const NewClientModal: React.FC<NewClientModalProps> = ({ onClose, onSubmit, user
     };
 
     onSubmit(newClient);
+    addToast("Client profile created successfully.", 'success');
   };
 
   return (
@@ -55,46 +58,46 @@ const NewClientModal: React.FC<NewClientModalProps> = ({ onClose, onSubmit, user
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label htmlFor="clientName" className="text-sm font-bold text-gray-700 uppercase tracking-wide">Full Name</label>
-                <input 
+                <input
                   id="clientName"
                   name="name"
-                  required 
-                  type="text" 
-                  className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none" 
-                  value={formData.name} 
-                  onChange={(e) => setFormData({...formData, name: e.target.value})} 
+                  required
+                  type="text"
+                  className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   autoComplete="name"
                 />
               </div>
               <div className="space-y-2">
                 <label htmlFor="clientEmail" className="text-sm font-bold text-gray-700 uppercase tracking-wide">Email</label>
-                <input 
+                <input
                   id="clientEmail"
                   name="email"
-                  required 
-                  type="email" 
-                  className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none" 
-                  value={formData.email} 
-                  onChange={(e) => setFormData({...formData, email: e.target.value})} 
+                  required
+                  type="email"
+                  className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   autoComplete="email"
                 />
               </div>
             </div>
             <div className="space-y-2">
               <label htmlFor="presentingConcern" className="text-sm font-bold text-gray-700 uppercase tracking-wide">Presenting Concern</label>
-              <textarea 
+              <textarea
                 id="presentingConcern"
                 name="presentingConcern"
-                className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none h-24" 
-                value={formData.presentingConcern} 
-                onChange={(e) => setFormData({...formData, presentingConcern: e.target.value})} 
+                className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none h-24"
+                value={formData.presentingConcern}
+                onChange={(e) => setFormData({ ...formData, presentingConcern: e.target.value })}
               />
             </div>
           </div>
           <div className="p-8 bg-gray-50 flex justify-end gap-3 border-t border-gray-100">
             <button type="button" onClick={onClose} className="px-6 py-2.5 font-bold text-gray-500">Cancel</button>
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               disabled={submitting}
               className="px-8 py-2.5 bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all flex items-center gap-2 disabled:opacity-50"
             >

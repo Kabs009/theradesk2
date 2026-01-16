@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Practitioner, UserPlan } from '../types';
+import ConfirmDialog from './ConfirmDialog';
+import { useToast } from '../contexts/ToastContext';
 
 interface SettingsViewProps {
   user: Practitioner;
@@ -8,37 +10,35 @@ interface SettingsViewProps {
 }
 
 const SettingsView: React.FC<SettingsViewProps> = ({ user, onUpdateUser, onTriggerUpgrade }) => {
+  const { addToast } = useToast();
   const [formData, setFormData] = useState({ ...user });
   const [isManagingBilling, setIsManagingBilling] = useState(false);
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
 
   const handleSave = () => {
     onUpdateUser(formData);
-    alert("Profile settings saved successfully.");
+    // Ideally this would be a toast, but keeping alert for non-blocking success is acceptable for now
+    // provided the main dangerous action (cancel) is protected by the modal.
+    addToast("Profile settings saved successfully.", 'success');
   };
 
-  const handleCancelSubscription = () => {
-    const confirmed = window.confirm(
-      "Are you sure you want to cancel your Theradesk Pro subscription?\n\n" +
-      "You will lose access to unlimited clients and AI-assisted clinical documentation immediately."
-    );
-
-    if (confirmed) {
-      const downgradedUser = { ...user, plan: UserPlan.FREE };
-      onUpdateUser(downgradedUser);
-      setIsManagingBilling(false);
-      alert("Your subscription has been cancelled. Your account has been moved to the Free Practice plan.");
-    }
+  const confirmCancelSubscription = () => {
+    const downgradedUser = { ...user, plan: UserPlan.FREE };
+    onUpdateUser(downgradedUser);
+    setIsManagingBilling(false);
+    setShowCancelDialog(false);
+    // Optional: could redirect or show a success toast here
   };
 
   const handleSecurityAction = (action: string) => {
-    alert(`${action}: This action has been initiated. Please check your clinical email (${user.email}) for further instructions.`);
+    addToast(`${action}: Check your email for instructions.`, 'info');
   };
 
   if (isManagingBilling) {
     return (
       <div className="max-w-4xl space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
         <div className="flex items-center gap-4">
-          <button 
+          <button
             onClick={() => setIsManagingBilling(false)}
             className="p-2 hover:bg-white rounded-full transition-all text-gray-500 hover:text-indigo-600"
           >
@@ -76,8 +76,8 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user, onUpdateUser, onTrigg
                 <div className="w-10 h-6 bg-gray-100 rounded flex items-center justify-center text-[10px] font-bold text-gray-400">CARD</div>
                 <p className="text-sm font-bold text-gray-700">Managed via Paystack Secure Vault</p>
               </div>
-              <button 
-                onClick={() => alert("Redirecting to secure Paystack portal...")}
+              <button
+                onClick={() => addToast("Redirecting to secure Paystack portal...", 'info')}
                 className="text-xs font-bold text-indigo-600 hover:underline"
               >
                 Update
@@ -91,8 +91,8 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user, onUpdateUser, onTrigg
                 <p className="text-sm font-bold text-rose-900">Cancel Subscription</p>
                 <p className="text-xs text-rose-600 font-medium mt-1">Stop your recurring payment and return to the Free plan.</p>
               </div>
-              <button 
-                onClick={handleCancelSubscription}
+              <button
+                onClick={() => setShowCancelDialog(true)}
                 className="px-6 py-3 bg-white text-rose-600 border border-rose-200 rounded-2xl font-bold text-xs hover:bg-rose-600 hover:text-white transition-all active:scale-95 shadow-sm"
               >
                 Cancel Subscription
@@ -100,6 +100,16 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user, onUpdateUser, onTrigg
             </div>
           </div>
         </div>
+
+        <ConfirmDialog
+          isOpen={showCancelDialog}
+          title="Cancel Subscription?"
+          message="You will lose access to unlimited clients and AI-assisted clinical documentation immediately. You can resubscribe at any time."
+          confirmLabel="Yes, Cancel Plan"
+          isDestructive={true}
+          onConfirm={confirmCancelSubscription}
+          onCancel={() => setShowCancelDialog(false)}
+        />
       </div>
     );
   }
@@ -115,29 +125,29 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user, onUpdateUser, onTrigg
         <div className="md:col-span-2 space-y-6">
           <div className="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm space-y-6">
             <h3 className="font-bold text-lg text-gray-900 border-b border-gray-50 pb-4">Practitioner Profile</h3>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-1.5">
                 <label htmlFor="settingsFullName" className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Full Name</label>
-                <input 
+                <input
                   id="settingsFullName"
                   name="fullName"
-                  type="text" 
-                  value={formData.fullName} 
-                  onChange={(e) => setFormData({...formData, fullName: e.target.value})}
-                  className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all" 
+                  type="text"
+                  value={formData.fullName}
+                  onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                  className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
                   autoComplete="name"
                 />
               </div>
               <div className="space-y-1.5">
                 <label htmlFor="settingsPracticeName" className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Practice Name</label>
-                <input 
+                <input
                   id="settingsPracticeName"
                   name="practiceName"
-                  type="text" 
-                  value={formData.practiceName} 
-                  onChange={(e) => setFormData({...formData, practiceName: e.target.value})}
-                  className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all" 
+                  type="text"
+                  value={formData.practiceName}
+                  onChange={(e) => setFormData({ ...formData, practiceName: e.target.value })}
+                  className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
                   autoComplete="organization"
                 />
               </div>
@@ -145,19 +155,19 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user, onUpdateUser, onTrigg
 
             <div className="space-y-1.5">
               <label htmlFor="settingsEmail" className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Clinical Email</label>
-              <input 
+              <input
                 id="settingsEmail"
                 name="email"
-                type="email" 
-                readOnly 
-                value={user.email} 
-                className="w-full px-5 py-3.5 bg-gray-100 border border-gray-100 rounded-2xl text-gray-400 cursor-not-allowed outline-none" 
+                type="email"
+                readOnly
+                value={user.email}
+                className="w-full px-5 py-3.5 bg-gray-100 border border-gray-100 rounded-2xl text-gray-400 cursor-not-allowed outline-none"
                 autoComplete="email"
               />
             </div>
 
             <div className="pt-4 flex justify-end">
-              <button 
+              <button
                 onClick={handleSave}
                 className="px-8 py-3 bg-gray-900 text-white rounded-2xl font-bold hover:bg-black transition-all active:scale-95 shadow-lg shadow-gray-200"
               >
@@ -169,7 +179,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user, onUpdateUser, onTrigg
           <div className="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm">
             <h3 className="font-bold text-lg text-gray-900 border-b border-gray-50 pb-4">Security & Session</h3>
             <div className="mt-6 space-y-4">
-              <div 
+              <div
                 className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl cursor-pointer hover:bg-gray-100 transition-colors"
                 onClick={() => handleSecurityAction("MFA Setup")}
               >
@@ -178,10 +188,10 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user, onUpdateUser, onTrigg
                   <p className="text-xs text-gray-500">Secure your clinical data with MFA.</p>
                 </div>
                 <div className="w-12 h-6 bg-gray-200 rounded-full relative">
-                   <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform"></div>
+                  <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform"></div>
                 </div>
               </div>
-              <button 
+              <button
                 onClick={() => handleSecurityAction("Password Reset")}
                 className="text-xs font-bold text-indigo-600 hover:underline px-1"
               >
@@ -194,7 +204,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user, onUpdateUser, onTrigg
         <div className="space-y-6">
           <div className="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm bg-gradient-to-br from-white to-gray-50">
             <h3 className="font-bold text-lg text-gray-900 mb-6">Plan & Billing</h3>
-            
+
             <div className="space-y-6">
               <div className="flex items-center gap-4">
                 <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl shadow-lg ${user.plan === UserPlan.PAID ? 'bg-indigo-600 text-white shadow-indigo-100' : 'bg-gray-100 text-gray-400 shadow-gray-100'}`}>
@@ -209,7 +219,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user, onUpdateUser, onTrigg
               {user.plan === UserPlan.FREE ? (
                 <div className="space-y-4">
                   <p className="text-xs text-gray-500 leading-relaxed font-medium">You are currently using the limited version of Theradesk OS. Get unlimited clients and AI tools for only <b>KES 100/mo</b> with <b>Theradesk Pro</b>.</p>
-                  <button 
+                  <button
                     onClick={onTriggerUpgrade}
                     className="w-full py-3.5 bg-indigo-600 text-white rounded-2xl font-black shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all active:scale-95"
                   >
@@ -218,13 +228,13 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user, onUpdateUser, onTrigg
                 </div>
               ) : (
                 <div className="space-y-4">
-                   <div className="p-4 bg-emerald-50 text-emerald-700 rounded-2xl text-xs font-bold border border-emerald-100">
-                     <i className="fas fa-check-circle mr-2"></i> Subscription active via Paystack
-                   </div>
-                   <button 
+                  <div className="p-4 bg-emerald-50 text-emerald-700 rounded-2xl text-xs font-bold border border-emerald-100">
+                    <i className="fas fa-check-circle mr-2"></i> Subscription active via Paystack
+                  </div>
+                  <button
                     onClick={() => setIsManagingBilling(true)}
                     className="w-full py-3.5 border-2 border-gray-100 text-gray-700 rounded-2xl font-bold hover:bg-gray-50 transition-all active:scale-95"
-                   >
+                  >
                     Manage Billing
                   </button>
                 </div>
