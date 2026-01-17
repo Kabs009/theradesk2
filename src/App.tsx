@@ -95,6 +95,22 @@ const AppContent: React.FC = () => {
     await syncNote(n);
   };
 
+  const updateUser = async (updatedUser: Practitioner) => {
+    setUser(updatedUser);
+    // Persist to Supabase so changes survive logout/login
+    try {
+      await supabase.from('practitioners').upsert({
+        id: updatedUser.id,
+        email: updatedUser.email,
+        full_name: updatedUser.fullName,
+        practice_name: updatedUser.practiceName,
+        plan: updatedUser.plan
+      });
+    } catch (err) {
+      console.error("Failed to save user profile:", err);
+    }
+  };
+
   if (loading) return (
     <div className="h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       <div className="text-center animate-float">
@@ -161,7 +177,7 @@ const AppContent: React.FC = () => {
           />
         );
       case 'settings':
-        return <SettingsView user={user} onUpdateUser={setUser} onTriggerUpgrade={() => setShowUpgrade(true)} />;
+        return <SettingsView user={user} onUpdateUser={updateUser} onTriggerUpgrade={() => setShowUpgrade(true)} />;
       default:
         return null;
     }
@@ -175,7 +191,7 @@ const AppContent: React.FC = () => {
           {renderView()}
         </div>
       </main>
-      {showUpgrade && <UpgradeModal user={user} onClose={() => setShowUpgrade(false)} onUpgrade={() => { setUser({ ...user, plan: UserPlan.PAID }); setShowUpgrade(false); }} />}
+      {showUpgrade && <UpgradeModal user={user} onClose={() => setShowUpgrade(false)} onUpgrade={() => { updateUser({ ...user, plan: UserPlan.PAID }); setShowUpgrade(false); }} />}
     </div>
   );
 };

@@ -16,9 +16,9 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user, onUpdateUser, onTrigg
   const [showCancelDialog, setShowCancelDialog] = useState(false);
 
   const handleSave = () => {
-    onUpdateUser(formData);
-    // Ideally this would be a toast, but keeping alert for non-blocking success is acceptable for now
-    // provided the main dangerous action (cancel) is protected by the modal.
+    // Preserve the plan field from the original user object to prevent subscription reset
+    const updatedUser = { ...formData, plan: user.plan };
+    onUpdateUser(updatedUser);
     addToast("Profile settings saved successfully.", 'success');
   };
 
