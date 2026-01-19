@@ -23,6 +23,7 @@ const AppContent: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [schemaError, setSchemaError] = useState(false);
   const [showUpgrade, setShowUpgrade] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -185,8 +186,37 @@ const AppContent: React.FC = () => {
 
   return (
     <div className="flex h-screen overflow-hidden text-slate-900" style={{ background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%)' }}>
-      <Sidebar view={view} setView={setView} user={user} />
-      <main className="flex-1 overflow-y-auto p-4 md:p-8">
+      {/* Mobile Header */}
+      <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-md border-b border-slate-200 z-30 flex items-center px-4">
+        <button
+          onClick={() => setIsMobileMenuOpen(true)}
+          className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-glow-indigo hover:scale-105 transition-all duration-300"
+        >
+          <div className="space-y-1.5">
+            <div className="hamburger-line bg-white"></div>
+            <div className="hamburger-line bg-white"></div>
+            <div className="hamburger-line bg-white"></div>
+          </div>
+        </button>
+        <div className="flex-1 flex items-center justify-center">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 gradient-primary rounded-lg flex items-center justify-center">
+              <i className="fas fa-brain text-white text-sm"></i>
+            </div>
+            <h1 className="font-black text-slate-900 text-sm">Theradesk OS</h1>
+          </div>
+        </div>
+        <div className="w-10"></div>
+      </div>
+
+      <Sidebar
+        view={view}
+        setView={setView}
+        user={user}
+        isMobileMenuOpen={isMobileMenuOpen}
+        onCloseMobileMenu={() => setIsMobileMenuOpen(false)}
+      />
+      <main className="flex-1 overflow-y-auto p-4 md:p-8 pt-20 md:pt-8">
         <div className="max-w-6xl mx-auto animate-clinical-in">
           {renderView()}
         </div>
